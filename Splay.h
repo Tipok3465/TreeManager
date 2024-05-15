@@ -23,6 +23,8 @@ private:
     void split(Node *&x, Node *&s, Node *&t);
 public:
     Splay();
+    void deleteTree(Node *cur);
+    ~Splay();
     void clickDelete(Node *cur, int x, int y);
     Node *contains(int64_t k);
     static Node *maximum(Node *node);
@@ -30,4 +32,5 @@ public:
     Node *getRoot();
     void deleteNode(int64_t data);
     static void render(QGraphicsScene *scene, Node *root);
+    void delAllTree();
 };
