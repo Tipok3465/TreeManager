@@ -22,8 +22,8 @@ add_executable(TreeManager main.cpp
         GraphWidget.h
         Trees/AVL.cpp
         Trees/AVL.h
-        Trees/Treap.cpp
-        Trees/Treap.h
+        Trees/CarTree.cpp
+        Trees/CarTree.h
         Trees/Splay.cpp
         Trees/Splay.h
         Trees/RBTree.cpp
