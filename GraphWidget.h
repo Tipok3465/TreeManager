@@ -5,6 +5,7 @@ class Node;
 
 class GraphWidget : public QGraphicsView
 {
+
 Q_OBJECT
 
 public:
