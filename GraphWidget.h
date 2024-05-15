@@ -13,7 +13,6 @@ public:
 public slots:
     void zoomIn();  // приближение
     void zoomOut(); // отдаление
-
 protected:
     void keyPressEvent(QKeyEvent *event) override; // нажатие кнопки
 #if QT_CONFIG(wheelevent)
@@ -24,6 +23,7 @@ protected:
 signals:
     void mousePressedSignal(int x, int y);
 private:
+    QLabel* data_tablet_;
     int x = 0;
     int y = 0;
 };
