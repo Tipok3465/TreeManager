@@ -1,23 +1,34 @@
 #include "RBTree.h"
 
-RBTree::Node* FOCUS = nullptr;
+RBTree::Node* NULLPTR = nullptr;
 
 RBTree::RBTree() {
-    FOCUS = new Node;
-    FOCUS->color = BLACK;
-    FOCUS->left = nullptr;
-    FOCUS->right = nullptr;
-    root = FOCUS;
+    NULLPTR = new Node;
+    NULLPTR->color = BLACK;
+    NULLPTR->left = nullptr;
+    NULLPTR->right = nullptr;
+    root = NULLPTR;
 }
 
-RBTree::Node* RBTree::find(Node *node, int key) {
-    if (node == FOCUS) {
+void RBTree::deleteTree(RBTree::Node *cur) {
+    if (!cur) return;
+    deleteTree(cur->left);
+    deleteTree(cur->right);
+    delete cur;
+}
+
+RBTree::~RBTree() {
+    deleteTree(root);
+}
+
+RBTree::Node* RBTree::find(Node *node, int64_t key) {
+    if (node == NULLPTR) {
         return nullptr;
     }
-    if (key == node->data) {
+    if (key == node->value) {
         return node;
     }
-    if (key < node->data) {
+    if (key < node->value) {
         return find(node->left, key);
     }
     return find(node->right, key);
@@ -95,44 +106,44 @@ void RBTree::rbTransplant(Node *u, Node *v) {
     v->parent = u->parent;
 }
 
-RBTree::Node* RBTree::contains(int k) {
+RBTree::Node* RBTree::contains(int64_t k) {
     return find(this->root, k);
 }
 
 RBTree::Node *RBTree::maximum(RBTree::Node *node) {
-    while (node->right != FOCUS) {
+    while (node->right != NULLPTR) {
         node = node->right;
     }
     return node;
 }
 
-void RBTree::deleteNode(Node *node, int key) {
-    Node* z = FOCUS;
+void RBTree::remove(Node *node, int64_t key) {
+    Node* z = NULLPTR;
     Node* x, *y;
-    while (node != FOCUS) {
-        if (node->data == key) {
+    while (node != NULLPTR) {
+        if (node->value == key) {
             z = node;
         }
-        if (node->data <= key) {
+        if (node->value <= key) {
             node = node->right;
         } else {
             node = node->left;
         }
     }
-    if (z == FOCUS) {
+    if (z == NULLPTR) {
         return;
     }
     y = z;
-    int y_original_color = y->color; // renamed
-    if (z->left == FOCUS) {
+    int64_t y_color = y->color;
+    if (z->left == NULLPTR) {
         x = z->right;
         rbTransplant(z, z->right);
-    } else if (z->right == FOCUS) {
+    } else if (z->right == NULLPTR) {
         x = z->left;
         rbTransplant(z, z->left);
     } else {
         y = maximum(z->left);
-        y_original_color = y->color;
+        y_color = y->color;
         x = y->left;
         if (y->parent == z) {
             x->parent = y;
@@ -149,7 +160,7 @@ void RBTree::deleteNode(Node *node, int key) {
     }
     delete z;
     z = nullptr;
-    if (y_original_color == BLACK) {
+    if (y_color == BLACK) {
         fixDelete(x);
     }
 }
@@ -201,7 +212,7 @@ void RBTree::fixInsert(Node *k) {
 void RBTree::leftRotate(Node *x) {
     Node * y = x->right;
     x->right = y->left;
-    if (y->left != FOCUS) {
+    if (y->left != NULLPTR) {
         y->left->parent = x;
     }
     y->parent = x->parent;
@@ -217,9 +228,9 @@ void RBTree::leftRotate(Node *x) {
 }
 
 void RBTree::rightRotate(Node *x) {
-    Node * y = x->left;
+    Node *y = x->left;
     x->left = y->right;
-    if (y->right != FOCUS) {
+    if (y->right != NULLPTR) {
         y->right->parent = x;
     }
     y->parent = x->parent;
@@ -234,21 +245,21 @@ void RBTree::rightRotate(Node *x) {
     x->parent = y;
 }
 
-void RBTree::insert(int key) {
+void RBTree::insert(int64_t key) {
     if (this->contains(key)) return;
     Node *node = new Node;
     node->parent = nullptr;
-    node->data = key;
-    node->left = FOCUS;
-    node->right = FOCUS;
+    node->value = key;
+    node->left = NULLPTR;
+    node->right = NULLPTR;
     node->color = RED;
 
     Node *y = nullptr;
     Node *x = this->root;
 
-    while (x != FOCUS) {
+    while (x != NULLPTR) {
         y = x;
-        if (node->data < x->data) {
+        if (node->value < x->value) {
             x = x->left;
         } else {
             x = x->right;
@@ -258,7 +269,7 @@ void RBTree::insert(int key) {
     node->parent = y;
     if (y == nullptr) {
         root = node;
-    } else if (node->data < y->data) {
+    } else if (node->value < y->value) {
         y->left = node;
     } else {
         y->right = node;
@@ -281,8 +292,8 @@ RBTree::Node *RBTree::getRoot() {
 }
 
 
-void treeFilling(RBTree::Node *&x, int dl) {
-    if (x == nullptr || x == FOCUS) return;
+void treeFilling(RBTree::Node *&x, int64_t dl) {
+    if (x == nullptr || x == NULLPTR) return;
     if (x->left) x->left->x -= dl;
     if (x->right) x->right->x -= dl;
     treeFilling(x->left, dl);
@@ -291,27 +302,27 @@ void treeFilling(RBTree::Node *&x, int dl) {
 }
 
 int max_right(RBTree::Node *x, int mx) {
-    if (x == nullptr || x == FOCUS) return mx;
+    if (x == nullptr || x == NULLPTR) return mx;
     mx = std::max(x->x + 50, max_right(x->right, mx));
     mx = std::max(x->x + 50, max_right(x->left, mx));
     return mx;
 }
 
 int max_left(RBTree::Node *x, int mx) {
-    if (x == nullptr || x == FOCUS) return mx;
+    if (x == nullptr || x == NULLPTR) return mx;
     mx = std::min(x->x, max_left(x->right, mx));
     mx = std::min(x->x, max_left(x->left, mx));
     return mx;
 }
 
 void posRecalc(RBTree::Node *&x) {
-    if (x == nullptr || x == FOCUS) return;
+    if (x == nullptr || x == NULLPTR) return;
 
     posRecalc(x->left);
     posRecalc(x->right);
-    int mr = max_right(x->left, -1e6), ml = max_left(x->right, 1e6);
+    int64_t mr = max_right(x->left, -1e6), ml = max_left(x->right, 1e6);
 
-    int delta = (mr == -1e6 || ml == 1e6 ? 0 : ml - mr);
+    int64_t delta = (mr == -1e6 || ml == 1e6 ? 0 : ml - mr);
     if (delta < 0) {
         if (x->left)
             x->left->x -= (abs(delta) / 2 + 25);
@@ -325,7 +336,7 @@ void posRecalc(RBTree::Node *&x) {
 }
 
 void fixPosition(RBTree::Node *&x) {
-    if (x == nullptr || x == FOCUS) return;
+    if (x == nullptr || x == NULLPTR) return;
     if (x->parent == nullptr) {
         x->x = -25;
         x->y = -250;
@@ -348,7 +359,7 @@ void recalc(RBTree::Node *&x) {
 }
 
 void RBTree::drawTree(Node *x, QGraphicsScene *&scene) {
-    if (!x || x == FOCUS) return;
+    if (!x || x == NULLPTR) return;
     auto *ellipse = new QGraphicsEllipseItem(x->x, x->y, 50, 50);
     QPen *pen = new QPen(Qt::black);
     if (x->color == RED) {
@@ -365,9 +376,18 @@ void RBTree::drawTree(Node *x, QGraphicsScene *&scene) {
         ellipse->setBrush(QBrush(QColor(99,99,99)));
     }
     ellipse->setZValue(2);
-    auto *text = new QGraphicsTextItem(QString::number(x->data));
+    auto *text = new QGraphicsTextItem(QString::number(x->value));
     text->setZValue(3);
-    text->setFont(QFont("Rockwell", 12));
+    if (QString::number(x->value).size() <= 5)
+        text->setFont(QFont("Rockwell", 13));
+    else if (QString::number(x->value).size() <= 7)
+        text->setFont(QFont("Rockwell", 11));
+    else if (QString::number(x->value).size() <= 10)
+        text->setFont(QFont("Rockwell", 9));
+    else if (QString::number(x->value).size() <= 13)
+        text->setFont(QFont("Rockwell", 7));
+    else
+        text->setFont(QFont("Rockwell", 5));
     text->setPos(ellipse->boundingRect().center() - text->boundingRect().center());
     scene->addItem(ellipse);
     scene->addItem(text);
@@ -408,15 +428,21 @@ void RBTree::Node::setPos(int _x, int _y) {
 }
 
 void RBTree::clickDelete(Node *cur, int x, int y) {
-    if (!cur && cur != FOCUS) return;
+    if (!cur && cur != NULLPTR) return;
     if (x > cur->x && x < cur->x + 50 && y > cur->y && y < cur->y + 50) {
-        this->deleteNode(cur->data);
+        this->deleteNode(cur->value);
     } else {
         clickDelete(cur->left, x, y);
         clickDelete(cur->right, x, y);
     }
 }
 
-void RBTree::deleteNode(int data) {
-    deleteNode(this->root, data);
+void RBTree::deleteNode(int64_t data) {
+    remove(this->root, data);
+}
+
+void RBTree::delAllTree() {
+    while(root != nullptr && root != NULLPTR) {
+        remove(root, root->value);
+    }
 }
