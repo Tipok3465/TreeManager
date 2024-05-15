@@ -4,6 +4,17 @@ Splay::Splay() {
     root = nullptr;
 }
 
+void Splay::deleteTree(Splay::Node *cur) {
+    if (!cur) return;
+    deleteTree(cur->left);
+    deleteTree(cur->right);
+    delete cur;
+}
+
+Splay::~Splay() {
+    deleteTree(root);
+}
+
 void Splay::deleteNode(int64_t data) {
     remove(this->root, data);
 }
@@ -253,9 +264,18 @@ void drawTree(Splay::Node *x, QGraphicsScene *&scene) {
     ellipse->setZValue(2);
     auto *text = new QGraphicsTextItem(QString::number(x->value));
     text->setDefaultTextColor(QColor(255, 255, 255));
+    if (QString::number(x->value).size() <= 5)
+        text->setFont(QFont("Rockwell", 13));
+    else if (QString::number(x->value).size() <= 7)
+        text->setFont(QFont("Rockwell", 11));
+    else if (QString::number(x->value).size() <= 10)
+        text->setFont(QFont("Rockwell", 9));
+    else if (QString::number(x->value).size() <= 13)
+        text->setFont(QFont("Rockwell", 7));
+    else
+        text->setFont(QFont("Rockwell", 5));
     text->setPos(ellipse->boundingRect().center() - text->boundingRect().center());
     text->setZValue(3);
-    text->setFont(QFont("Rockwell", 12));
     scene->addItem(ellipse);
     scene->addItem(text);
     if (x->parent) {
@@ -297,5 +317,11 @@ void Splay::clickDelete(Node *cur, int x, int y) {
     } else {
         clickDelete(cur->left, x, y);
         clickDelete(cur->right, x, y);
+    }
+}
+
+void Splay::delAllTree() {
+    while(root != nullptr) {
+        remove(root, root->value);
     }
 }
