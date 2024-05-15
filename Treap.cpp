@@ -1,6 +1,6 @@
-#include "Treap.h"
+#include "CarTree.h"
 
-Treap::Node *Treap::find(Node *node, int64_t key) {
+CarTree::Node *CarTree::find(Node *node, int64_t key) {
     if (node == nullptr || key == node->value) {
         return node;
     }
@@ -10,22 +10,33 @@ Treap::Node *Treap::find(Node *node, int64_t key) {
     return find(node->right, key);
 }
 
-Treap::Treap() {
+CarTree::CarTree() {
     root = nullptr;
 }
 
-Treap::Node *Treap::contains(int64_t k) {
+void CarTree::deleteTree(CarTree::Node *cur) {
+    if (!cur) return;
+    deleteTree(cur->left);
+    deleteTree(cur->right);
+    delete cur;
+}
+
+CarTree::~CarTree() {
+    deleteTree(root);
+}
+
+CarTree::Node *CarTree::contains(int64_t k) {
     return find(this->root, k);
 }
 
-void Treap::insert(int64_t key, int64_t prior) {
+void CarTree::insert(int64_t key, int64_t prior) {
     Node *node = new Node;
     node->value = key;
     node->priority = prior;
     insert(root, node);
 }
 
-void Treap::split(Treap::Node* t, int key, Treap::Node* &lhs, Treap::Node*& rhs) {
+void CarTree::split(CarTree::Node* t, int key, CarTree::Node* &lhs, CarTree::Node*& rhs) {
     if (t == nullptr) {
         lhs = nullptr;
         rhs = nullptr;
@@ -38,7 +49,7 @@ void Treap::split(Treap::Node* t, int key, Treap::Node* &lhs, Treap::Node*& rhs)
     }
 }
 
-void Treap::merge(Treap::Node*& t, Treap::Node* left, Treap::Node* right) {
+void CarTree::merge(CarTree::Node*& t, CarTree::Node* left, CarTree::Node* right) {
     if (left == nullptr || right == nullptr) {
         if (left != nullptr) {
             t = left;
@@ -54,7 +65,7 @@ void Treap::merge(Treap::Node*& t, Treap::Node* left, Treap::Node* right) {
     }
 }
 
-bool is_in_treap(Treap::Node* tree, Treap::Node* cur) {
+bool is_in_treap(CarTree::Node* tree, CarTree::Node* cur) {
     if (tree == nullptr)
         return false;
     if (tree->value == cur->value) {
@@ -66,7 +77,7 @@ bool is_in_treap(Treap::Node* tree, Treap::Node* cur) {
     }
 }
 
-void Treap::insert(Treap::Node*& t, Treap::Node* it) {
+void CarTree::insert(CarTree::Node*& t, CarTree::Node* it) {
     if (is_in_treap(t, it))
         return;
     if (t == nullptr) {
@@ -84,7 +95,7 @@ void Treap::insert(Treap::Node*& t, Treap::Node* it) {
     }
 }
 
-void Treap::remove(Node*& t, int key) {
+void CarTree::remove(Node*& t, int64_t key) {
     if (t->value == key) {
         merge(t, t->left, t->right);
     } else {
@@ -92,22 +103,22 @@ void Treap::remove(Node*& t, int key) {
     }
 }
 
-Treap::Node *Treap::getRoot() {
+CarTree::Node *CarTree::getRoot() {
     return this->root;
 }
 
-void Treap::deleteNode(int64_t data) {
+void CarTree::deleteNode(int64_t data) {
     remove(root, data);
 }
 
 
-void Treap::Node::setPos(int64_t _x, int64_t _y) {
+void CarTree::Node::setPos(int64_t _x, int64_t _y) {
     x = _x;
     y = _y;
 }
 
 
-void treeFilling(Treap::Node *&x, int64_t dl) {
+void treeFilling(CarTree::Node *&x, int64_t dl) {
     if (x == nullptr) return;
 
     if (x->left) x->left->x -= dl;
@@ -118,21 +129,21 @@ void treeFilling(Treap::Node *&x, int64_t dl) {
 
 }
 
-int max_right(Treap::Node *x, int mx) {
+int max_right(CarTree::Node *x, int mx) {
     if (x == nullptr) return mx;
     mx = std::max(x->x + 50, max_right(x->right, mx));
     mx = std::max(x->x + 50, max_right(x->left, mx));
     return mx;
 }
 
-int max_left(Treap::Node *x, int mx) {
+int max_left(CarTree::Node *x, int mx) {
     if (x == nullptr) return mx;
     mx = std::min(x->x, max_left(x->right, mx));
     mx = std::min(x->x, max_left(x->left, mx));
     return mx;
 }
 
-void posRecalc(Treap::Node *&x) {
+void posRecalc(CarTree::Node *&x) {
     if (x == nullptr) return;
 
     posRecalc(x->left);
@@ -152,14 +163,14 @@ void posRecalc(Treap::Node *&x) {
 
 }
 
-void seekParent(Treap::Node* x, Treap::Node* par = nullptr) {
+void seekParent(CarTree::Node* x, CarTree::Node* par = nullptr) {
     if (x == nullptr) return;
     x->parent = par;
     seekParent(x->left, x);
     seekParent(x->right, x);
 }
 
-void fixPosition(Treap::Node *&x) {
+void fixPosition(CarTree::Node *&x) {
     if (x == nullptr) return;
     if (x->parent == nullptr) {
         x->x = -25;
@@ -176,20 +187,29 @@ void fixPosition(Treap::Node *&x) {
     fixPosition(x->right);
 }
 
-void recalc(Treap::Node *&x) {
+void recalc(CarTree::Node *&x) {
     seekParent(x);
     fixPosition(x);
     posRecalc(x);
 }
 
-void drawTree(Treap::Node *x, QGraphicsScene *&scene) {
+void drawTree(CarTree::Node *x, QGraphicsScene *&scene) {
     if (!x) return;
     auto *ellipse = new QGraphicsEllipseItem(x->x, x->y, 50, 50);
     ellipse->setZValue(2);
     ellipse->setBrush(QBrush(QColor(99,99,99)));
     auto *text = new QGraphicsTextItem(QString::number(x->value));
     text->setZValue(3);
-    text->setFont(QFont("Rockwell", 12));
+    if (QString::number(x->value).size() <= 5)
+        text->setFont(QFont("Rockwell", 13));
+    else if (QString::number(x->value).size() <= 7)
+        text->setFont(QFont("Rockwell", 11));
+    else if (QString::number(x->value).size() <= 10)
+        text->setFont(QFont("Rockwell", 9));
+    else if (QString::number(x->value).size() <= 13)
+        text->setFont(QFont("Rockwell", 7));
+    else
+        text->setFont(QFont("Rockwell", 5));
     text->setDefaultTextColor(QColor(255, 255, 255));
     text->setPos(ellipse->boundingRect().center() - text->boundingRect().center() - QPointF(0, 8));
     auto *textPrior = new QGraphicsTextItem(QString::number(x->priority));
@@ -217,7 +237,7 @@ void drawTree(Treap::Node *x, QGraphicsScene *&scene) {
 }
 
 
-void Treap::render(QGraphicsScene *scene, Node *_root) {
+void CarTree::render(QGraphicsScene *scene, Node *_root) {
     scene->clear();
     for (int i = -100000; i <= 100000; i += 25)
     {
@@ -231,7 +251,7 @@ void Treap::render(QGraphicsScene *scene, Node *_root) {
 
 }
 
-void Treap::clickDelete(Node *cur, int64_t x, int64_t y) {
+void CarTree::clickDelete(Node *cur, int64_t x, int64_t y) {
     if (!cur) return;
     if (x > cur->x && x < cur->x + 50 && y > cur->y && y < cur->y + 50) {
         this->deleteNode(cur->value);
@@ -241,4 +261,8 @@ void Treap::clickDelete(Node *cur, int64_t x, int64_t y) {
     }
 }
 
-
+void CarTree::delAllTree() {
+    while(root != nullptr) {
+        remove(root, root->value);
+    }
+}
