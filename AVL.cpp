@@ -8,7 +8,7 @@ AVL::Node::Node(int64_t value) : value(value),
                              parent(nullptr) {}
 
 
-AVL::AVL() : root_(nullptr) {}
+AVL::AVL() : root_(nullptr) { }
 
 AVL::~AVL() {
     deleteTree(root_);
@@ -28,11 +28,10 @@ void AVL::fixHeight(Node *p) {
 }
 
 void AVL::deleteTree(Node *node) {
-    if (node != nullptr) {
-        deleteTree(node->left);
-        deleteTree(node->right);
-        delete node;
-    }
+    if (node == nullptr) return;
+    deleteTree(node->left);
+    deleteTree(node->right);
+    delete node;
 }
 
 void AVL::insert(int64_t value) {
@@ -230,15 +229,24 @@ void recalc(AVL::Node *&x) {
     posRecalc(x);
 }
 
-void paintTree(AVL::Node *x, QGraphicsScene *&scene) {
+void drawTree(AVL::Node *x, QGraphicsScene *&scene) {
     if (!x) return;
-    auto *ellipse = new QGraphicsEllipseItem(x->x, x->y, 50, 50);
+    auto ellipse = new QGraphicsEllipseItem(x->x, x->y, 50, 50);
     ellipse->setBrush(QBrush(QColor(99,99,99)));
     ellipse->setZValue(2);
     auto *text = new QGraphicsTextItem(QString::number(x->value));
     text->setDefaultTextColor(QColor(255, 255, 255));
+    if (QString::number(x->value).size() <= 5)
+        text->setFont(QFont("Rockwell", 13));
+    else if (QString::number(x->value).size() <= 7)
+        text->setFont(QFont("Rockwell", 11));
+    else if (QString::number(x->value).size() <= 10)
+        text->setFont(QFont("Rockwell", 9));
+    else if (QString::number(x->value).size() <= 13)
+        text->setFont(QFont("Rockwell", 7));
+    else
+        text->setFont(QFont("Rockwell", 5));
     text->setPos(ellipse->boundingRect().center() - text->boundingRect().center());
-    text->setFont(QFont("Rockwell", 12));
     text->setZValue(3);
     scene->addItem(ellipse);
     scene->addItem(text);
@@ -253,8 +261,8 @@ void paintTree(AVL::Node *x, QGraphicsScene *&scene) {
         line->setPen(uu);
         scene->addItem(line);
     }
-    paintTree(x->left, scene);
-    paintTree(x->right, scene);
+    drawTree(x->left, scene);
+    drawTree(x->right, scene);
 
 }
 
@@ -269,13 +277,18 @@ void AVL::render(QGraphicsScene *scene, AVL::Node *root) {
         scene->addLine(-100000, i, 100000, i);
     }
     recalc(root);
-    paintTree(root, scene);
-
+    drawTree(root, scene);
 }
 
 
 AVL::Node *AVL::getRoot() const {
     return root_;
+}
+
+void AVL::delAllTree() {
+    while(root_ != nullptr) {
+        remove(root_, root_->value);
+    }
 }
 
 void AVL::clickDelete(Node *cur, int64_t x, int64_t y) {
