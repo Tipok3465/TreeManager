@@ -52,11 +52,9 @@ void GraphWidget::wheelEvent(QWheelEvent *event)
 
 void GraphWidget::scaleView(qreal scaleFactor)
 {
-    qreal factor = transform().scale(scaleFactor, scaleFactor)
-            .mapRect(QRectF(0, 0, 1, 1)).width();
+    qreal factor = transform().scale(scaleFactor, scaleFactor).mapRect(QRectF(0, 0, 1, 1)).width();
     if (factor < 0.07 || factor > 100)
         return;
-
     scale(scaleFactor, scaleFactor);
 }
 
@@ -73,8 +71,14 @@ void GraphWidget::zoomOut()
 void GraphWidget::mousePressEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton) {
-        auto coordsInScene = this->mapToScene(event->pos());
-        emit mousePressedSignal((int) coordsInScene.x(), (int) coordsInScene.y());
+        auto coords = this->mapToScene(event->pos());
+        emit mousePressedSignal((int) coords.x(), (int) coords.y());
     }
     QGraphicsView::mousePressEvent(event);
+}
+
+int len(int64_t n) {
+    int sz = 0;
+    while (n) n /= 10, ++sz;
+    return sz;
 }
