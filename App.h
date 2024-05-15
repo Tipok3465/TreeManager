@@ -2,7 +2,7 @@
 #include "Label.h"
 #include "GraphWidget.h"
 #include "Trees/AVL.h"
-#include "Trees/Treap.h"
+#include "Trees/CarTree.h"
 #include "Trees/Splay.h"
 #include "Trees/RBTree.h"
 
@@ -18,7 +18,6 @@ public:
     void render() {
         start_screen_->show();
     }
-
 private slots:
     void setAvlTree();
     void setRbTree();
@@ -26,14 +25,15 @@ private slots:
     void setSplayTree();
     void showValueData();
     void showRandData();
+    void clearAllTree();
     void hideData();
     void addNode();
     void addSomeNodes();
     void goToSettings();
-    void treeClickChecking(int, int);
+    void clickedOnTree(int, int);
 private:
     AVL* back_avl_tree_;
-    Treap* back_car_tree_;
+    CarTree* back_car_tree_;
     Splay* back_splay_tree_;
     RBTree* back_rb_tree_;
     QString font_family_;
@@ -65,6 +65,7 @@ private:
     QLabel* tree_settings_;
     QPushButton* adding_node_;
     QPushButton* adding_some_nodes_;
+    QPushButton* clear_cur_tree_;
     QInputDialog* rand_data_;
     QPushButton* avl_tree_btn_;
     QPushButton* rb_tree_btn_;
